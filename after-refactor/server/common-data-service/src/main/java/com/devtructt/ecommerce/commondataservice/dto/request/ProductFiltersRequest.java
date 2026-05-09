@@ -22,9 +22,16 @@ public class ProductFiltersRequest {
 	private List<Long> genderIds;
     private List<Long> apparelIds;
     private List<Long> brandIds;
-    private List<BigDecimal> priceRanges;
+    
+    private String productName;
+    
+    private BigDecimal minPrice;
+    private BigDecimal maxPrice;
+    
     private String keyword;
+    
     private Integer pageNumber;
     private Integer pageSize;
+    
     private SortOption sortOption;
 }

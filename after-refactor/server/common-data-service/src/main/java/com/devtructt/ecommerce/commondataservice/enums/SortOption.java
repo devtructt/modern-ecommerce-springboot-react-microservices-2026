@@ -1,8 +1,17 @@
 package com.devtructt.ecommerce.commondataservice.enums;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum SortOption {
-    NEWEST,
-    POPULARITY,
-    PRICE_LOW_TO_HIGH,
-    PRICE_HIGH_TO_LOW
+	@JsonProperty("newest")
+	NEWEST,
+
+	@JsonProperty("popularity")
+	POPULARITY,
+
+	@JsonProperty("priceLowToHigh")
+	PRICE_LOW_TO_HIGH,
+
+	@JsonProperty("priceHighToLow")
+	PRICE_HIGH_TO_LOW;
 }
