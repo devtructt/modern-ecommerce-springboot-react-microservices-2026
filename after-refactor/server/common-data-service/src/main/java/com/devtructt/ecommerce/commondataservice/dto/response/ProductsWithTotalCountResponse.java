@@ -2,7 +2,7 @@ package com.devtructt.ecommerce.commondataservice.dto.response;
 
 import java.util.List;
 
-import com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto;
+import com.devtructt.ecommerce.commondataservice.entity.Product;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -17,10 +17,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class FilterAttributesResponse {
-	private List<ProductFilterDto> genders;
-	private List<ProductFilterDto> apparels;
-    private List<ProductFilterDto> brands;
-    private List<ProductFilterDto> priceRanges;
-    private List<ProductFilterDto> sortOptions;
+public class ProductsWithTotalCountResponse {
+	private Long totalCount;
+	private List<Product> products;
 }

@@ -30,8 +30,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = { "gender", "apparel", "brand", "priceRange", "orders" })
-@EqualsAndHashCode(exclude = { "gender", "apparel", "brand", "priceRange", "orders" })
+@ToString(exclude = { "gender", "apparel", "brand", "orders" })
+@EqualsAndHashCode(exclude = { "gender", "apparel", "brand", "orders" })
 @Entity
 @Table(indexes = { @Index(columnList = "gender_id, apparel_id, brand_id, price") })
 public class Product {
@@ -57,10 +57,6 @@ public class Product {
 	@JsonIgnore
 	private Brand brand;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JsonIgnore
-	private PriceRange priceRange;
-
 	private BigDecimal price;
 
 	private Integer availableQuantity;
@@ -76,21 +72,19 @@ public class Product {
 	private String localImagePath;
 
 
-	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonIgnore
 	@Builder.Default
 	private List<Order> orders = new ArrayList<>();
 
-	public Product(Long sellerId, String name, LocalDate publicationDate, Gender gender, Apparel apparel, Brand brand,
-			PriceRange priceRange, BigDecimal price, Integer availableQuantity, Integer deliveryTime, BigDecimal rating,
-			Boolean verificationStatus, String localImagePath, String imageUrl) {
+	public Product(Long sellerId, String name, LocalDate publicationDate, Gender gender, Apparel apparel, Brand brand, BigDecimal price, 
+			Integer availableQuantity, Integer deliveryTime, BigDecimal rating, Boolean verificationStatus, String localImagePath, String imageUrl) {
 		this.sellerId = sellerId;
 		this.name = name;
 		this.publicationDate = publicationDate;
 		this.gender = gender;
 		this.apparel = apparel;
 		this.brand = brand;
-		this.priceRange = priceRange;
 		this.price = price;
 		this.availableQuantity = availableQuantity;
 		this.deliveryTime = deliveryTime;

@@ -2,9 +2,9 @@ package com.devtructt.ecommerce.commondataservice.dto.response;
 
 import java.util.List;
 
-import com.devtructt.ecommerce.commondataservice.dto.ApparelGenderImageDto;
 import com.devtructt.ecommerce.commondataservice.dto.BrandImageDto;
 import com.devtructt.ecommerce.commondataservice.dto.CarouselImageDto;
+import com.devtructt.ecommerce.commondataservice.dto.GenderApparelImageDto;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -19,8 +19,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class HomeScreenImagesResponse {
-	private List<ApparelGenderImageDto> apparelImageDtos;
+public class HomepageImagesResponse {
+	private List<GenderApparelImageDto> genderApparelImageDto;
     private List<BrandImageDto> brandImageDtos;
     private List<CarouselImageDto> carouselImageDtos;
 }

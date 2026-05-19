@@ -1,0 +1,24 @@
+server:
+  port: 8082
+  
+spring:
+  application:
+    name: common-data-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecommerce2026?createDatabaseIfNotExist=true
+#		&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: Aa123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+
+    properties:
+      hibernate:
+        format-sql: true
+        globally-quoted-identifiers: true
+
+    hibernate:
+      ddl-auto: update

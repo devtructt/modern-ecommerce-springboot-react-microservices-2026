@@ -1,7 +1,5 @@
 package com.devtructt.ecommerce.commondataservice.dto;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -12,12 +10,13 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor	
 @ToString
 @EqualsAndHashCode
-public class ProductFiltersByGenderDto {
-	private Long genderId;
-	private String genderName;
-    private List<ProductFilterDto> brands;
-    private List<ProductFilterDto> apparels;
+public class TwoProductFiltersDto {
+    Long firstProductFilterId;
+    String firstProductFilterName;
+    
+    Long secondProductFilterId;
+    String secondProductFilterName;
 }
