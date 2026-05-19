@@ -45,6 +45,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LoadSampleDataService {
 	public final static String SAMPLE_DATA_DIRECTORY = "sample-data";
+	
 	public final static String PRODUCT_DATA_FILE_NAME = "product-data.txt";
 	public final static String PRICE_RANGE_DATA_FILE_NAME = "price-range-data.txt";
 	public final static String SORT_OPTION_DATA_FILE_NAME = "sort-option-data.txt";
