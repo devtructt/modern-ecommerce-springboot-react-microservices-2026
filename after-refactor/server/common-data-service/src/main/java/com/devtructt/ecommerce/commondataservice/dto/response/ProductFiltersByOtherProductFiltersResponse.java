@@ -1,8 +1,9 @@
-package com.devtructt.ecommerce.commondataservice.dto.request;
+package com.devtructt.ecommerce.commondataservice.dto.response;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto;
 import com.devtructt.ecommerce.commondataservice.enums.SortOption;
 
 import lombok.AllArgsConstructor;
@@ -18,18 +19,13 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class ProductFiltersRequest {
-	private List<Long> genderIds;
-    private List<Long> apparelIds;
-    private List<Long> brandIds;
-    
-    private String productName;
-    
+public class ProductFiltersByOtherProductFiltersResponse {
+	private List<ProductFilterDto> genders;
+	private List<ProductFilterDto> apparels;
+	private List<ProductFilterDto> brands;
+	
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     
     private SortOption sortOption;
-    
-    private Integer pageNumber;
-    private Integer pageSize;
 }

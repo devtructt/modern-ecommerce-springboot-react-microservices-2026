@@ -1,4 +1,4 @@
-package com.devtructt.ecommerce.commondataservice.dto;
+package com.devtructt.ecommerce.searchsuggestionservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -13,9 +13,10 @@ import lombok.ToString;
 @AllArgsConstructor	
 @ToString
 @EqualsAndHashCode
-public class SearchSuggestionForTwoProductFiltersDto {
-    Integer firstProductFilterId;
+public class TwoProductFiltersDto {
+    Long firstProductFilterId;
     String firstProductFilterName;
-    Integer secondProductFilterId;
+    
+    Long secondProductFilterId;
     String secondProductFilterName;
 }

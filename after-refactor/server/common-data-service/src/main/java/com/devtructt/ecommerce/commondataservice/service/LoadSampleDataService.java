@@ -24,9 +24,7 @@ import com.devtructt.ecommerce.commondataservice.entity.BrandImage;
 import com.devtructt.ecommerce.commondataservice.entity.CarouselImage;
 import com.devtructt.ecommerce.commondataservice.entity.Gender;
 import com.devtructt.ecommerce.commondataservice.entity.GenderApparelImage;
-import com.devtructt.ecommerce.commondataservice.entity.PriceRange;
 import com.devtructt.ecommerce.commondataservice.entity.Product;
-import com.devtructt.ecommerce.commondataservice.entity.SortOption;
 import com.devtructt.ecommerce.commondataservice.enums.ImageType;
 import com.devtructt.ecommerce.commondataservice.enums.ProductFilter;
 import com.devtructt.ecommerce.commondataservice.repository.ApparelRepository;
@@ -35,9 +33,7 @@ import com.devtructt.ecommerce.commondataservice.repository.BrandRepository;
 import com.devtructt.ecommerce.commondataservice.repository.CarouselImageRepository;
 import com.devtructt.ecommerce.commondataservice.repository.GenderApparelImageRepository;
 import com.devtructt.ecommerce.commondataservice.repository.GenderRepository;
-import com.devtructt.ecommerce.commondataservice.repository.PriceRangeRepository;
 import com.devtructt.ecommerce.commondataservice.repository.ProductRepository;
-import com.devtructt.ecommerce.commondataservice.repository.SortOptionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,8 +43,6 @@ public class LoadSampleDataService {
 	public final static String SAMPLE_DATA_DIRECTORY = "sample-data";
 	
 	public final static String PRODUCT_DATA_FILE_NAME = "product-data.txt";
-	public final static String PRICE_RANGE_DATA_FILE_NAME = "price-range-data.txt";
-	public final static String SORT_OPTION_DATA_FILE_NAME = "sort-option-data.txt";
 	public final static String IMAGE_DATA_FILE_NAME = "image-data.txt";
 
 	private final ProductRepository productRepository;
@@ -56,9 +50,6 @@ public class LoadSampleDataService {
 	private final ApparelRepository apparelRepository;
 	private final GenderRepository genderRepository;
 	private final BrandRepository brandRepository;
-
-	private final PriceRangeRepository priceRangeRepository;
-	private final SortOptionRepository sortOptionRepository;
 
 	private final BrandImageRepository brandImageRepository;
 	private final GenderApparelImageRepository genderApparelImageRepository;
@@ -68,44 +59,56 @@ public class LoadSampleDataService {
 	
 	@Transactional
 	public void loadSampleData() {
-		loadProductFilterData(ProductFilter.SORT_OPTION, SORT_OPTION_DATA_FILE_NAME);
-		loadProductFilterData(ProductFilter.PRICE_RANGE, PRICE_RANGE_DATA_FILE_NAME);
 		loadProductData();
 		loadImageData();
 	}
 	
 	@Transactional
-	public void loadProductFilterData(ProductFilter productFilterType, String fileName) {
-		Resource resource = resourceLoader.getResource("classpath:" + SAMPLE_DATA_DIRECTORY + "/" + fileName);
+	public void loadProductData() {
+		LocalDate startDate = LocalDate.of(2025, 1, 1);
+		LocalDate endDate = LocalDate.of(2025, 12, 31);
+		
+		Resource resource = resourceLoader.getResource("classpath:" + SAMPLE_DATA_DIRECTORY + "/" + PRODUCT_DATA_FILE_NAME);
 		if (!resource.exists()) {
-			throw new RuntimeException("Sample data file not found: " + fileName);
+			throw new RuntimeException("Sample data file not found: " + PRODUCT_DATA_FILE_NAME);
 		}
 		
 		try {
 			Path path = Paths.get(resource.getURI());
 			Files.lines(path, StandardCharsets.UTF_8).forEach(line -> {
-			    String[] parts = line.split("\\|");
-			    String id = parts[0];
-			    String name = parts[1];
-			    
-				switch (productFilterType) {
-			        case SORT_OPTION -> {
-			            if (sortOptionRepository.findByName(name).isEmpty()) {
-			            	sortOptionRepository.save(new SortOption(Long.valueOf(id), name));
-			            }
-			        }
-			        case PRICE_RANGE -> {
-			        	BigDecimal minPrice = new BigDecimal(parts[2]);
-			        	BigDecimal maxPrice = new BigDecimal(parts[3]);
-			            if (priceRangeRepository.findByName(name).isEmpty()) {
-			            	priceRangeRepository.save(new PriceRange(Long.valueOf(id), name, minPrice, maxPrice));
-			            }
-			        }
-			        default -> throw new IllegalArgumentException("Unexpected value: " + productFilterType);
-				}
+				String[] lineParts = line.split("\\|");
+				String genderName = lineParts[0];
+				String apparelName = lineParts[1];
+				String brandName = lineParts[2];
+				String productName = lineParts[3];
+				BigDecimal price = new BigDecimal(lineParts[4]);
+				String imageName = lineParts[5];
+				String imageUrl = lineParts[6];
+				String localImagePath = normalizeFilePath(genderName + "/" + apparelName + "/" + brandName + "/" + imageName);
+				
+				Gender gender = genderRepository.findByName(genderName).orElseGet(() -> genderRepository.save(new Gender(genderName)));
+				Apparel apparel = apparelRepository.findByName(apparelName).orElseGet(() -> apparelRepository.save(new Apparel(apparelName)));
+				Brand brand = brandRepository.findByName(brandName).orElseGet(() -> brandRepository.save(new Brand(brandName)));
+				
+				Product product = Product.builder()
+				        .sellerId(1L)
+				        .name(productName)
+				        .publicationDate(randomDateBetween(startDate, endDate))
+				        .gender(gender)
+				        .apparel(apparel)
+				        .brand(brand)
+				        .price(price)
+				        .availableQuantity(randomIntBetween(1, 100 + 1))
+				        .deliveryTime(randomIntBetween(2, 5 + 1))
+				        .rating(randomDecimalBetween(BigDecimal.ZERO, BigDecimal.valueOf(5), 1))
+				        .verificationStatus(true)
+				        .localImagePath(localImagePath)
+				        .imageUrl(imageUrl)
+				        .build();
+				productRepository.save(product);
 			});
 		} catch (IOException exception) {
-			throw new RuntimeException("Failed to load product filter data", exception);
+			throw new RuntimeException("Failed to load product data", exception);
 		}
 	}
 	
@@ -166,63 +169,6 @@ public class LoadSampleDataService {
 		} catch (IOException exception) {
 			throw new RuntimeException("Failed to load image data", exception);
 		}
-	}
-	
-	@Transactional
-	public void loadProductData() {
-		LocalDate startDate = LocalDate.of(2025, 1, 1);
-		LocalDate endDate = LocalDate.of(2025, 12, 31);
-		
-		Resource resource = resourceLoader.getResource("classpath:" + SAMPLE_DATA_DIRECTORY + "/" + PRODUCT_DATA_FILE_NAME);
-		if (!resource.exists()) {
-			throw new RuntimeException("Sample data file not found: " + PRODUCT_DATA_FILE_NAME);
-		}
-		
-		try {
-			Path path = Paths.get(resource.getURI());
-			Files.lines(path, StandardCharsets.UTF_8).forEach(line -> {
-				String[] lineParts = line.split("\\|");
-				String genderName = lineParts[0];
-				String apparelName = lineParts[1];
-				String brandName = lineParts[2];
-				String productName = lineParts[3];
-				BigDecimal price = new BigDecimal(lineParts[4]);
-				String fileName = lineParts[5];
-				String imageUrl = lineParts[6];
-				String localImagePath = normalizeFilePath(genderName + "/" + apparelName + "/" + fileName);
-				
-				Gender gender = genderRepository.findByName(genderName).orElseGet(() -> genderRepository.save(new Gender(genderName)));
-				Apparel apparel = apparelRepository.findByName(apparelName).orElseGet(() -> apparelRepository.save(new Apparel(apparelName)));
-				Brand brand = brandRepository.findByName(brandName).orElseGet(() -> brandRepository.save(new Brand(brandName)));
-				PriceRange priceRange = findPriceRangeByPrice(price).get();
-				
-				Product product = Product.builder()
-				        .sellerId(1L)
-				        .name(productName)
-				        .publicationDate(randomDateBetween(startDate, endDate))
-				        .gender(gender)
-				        .apparel(apparel)
-				        .brand(brand)
-				        .priceRange(priceRange)
-				        .price(price)
-				        .availableQuantity(randomIntBetween(1, 100 + 1))
-				        .deliveryTime(randomIntBetween(2, 5 + 1))
-				        .rating(randomDecimalBetween(BigDecimal.ZERO, BigDecimal.valueOf(5), 1))
-				        .verificationStatus(true)
-				        .localImagePath(localImagePath)
-				        .imageUrl(imageUrl)
-				        .build();
-				productRepository.save(product);
-			});
-		} catch (IOException exception) {
-			throw new RuntimeException("Failed to load product data", exception);
-		}
-	}
-
-	private Optional<PriceRange> findPriceRangeByPrice(BigDecimal price) {
-		return priceRangeRepository.findAll().stream()
-				.filter(range -> range.getMinPrice().compareTo(price) <= 0 && range.getMaxPrice().compareTo(price) >= 0)
-				.findFirst();
 	}
 
 	private String normalizeFilePath(String path) {

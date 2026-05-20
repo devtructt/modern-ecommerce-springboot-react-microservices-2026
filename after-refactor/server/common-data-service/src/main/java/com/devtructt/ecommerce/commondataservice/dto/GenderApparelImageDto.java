@@ -1,9 +1,5 @@
 package com.devtructt.ecommerce.commondataservice.dto;
 
-import java.util.List;
-
-import com.devtructt.ecommerce.commondataservice.entity.Product;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,7 +13,14 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class ProductDto {
-	private Long totalCount;
-	private List<Product> products;
+public class GenderApparelImageDto {
+    private String title;
+
+    private String localImagePath;
+
+    private String imageUrl;
+
+    private ApparelDto apparelDto;
+
+    private GenderDto genderDto;
 }

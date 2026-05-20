@@ -13,11 +13,13 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class SearchSuggestionForThreeProductsFilterDto {
-    Integer firstProductFilterId;
+public class ThreeProductFiltersDto {
+    Long firstProductFilterId;
     String firstProductFilterName;
-    Integer secondProductFilterId;
+    
+    Long secondProductFilterId;
     String secondProductFilterName;
-    Integer thirdProductFilterId;
+    
+    Long thirdProductFilterId;
     String thirdProductFilterName;
 }

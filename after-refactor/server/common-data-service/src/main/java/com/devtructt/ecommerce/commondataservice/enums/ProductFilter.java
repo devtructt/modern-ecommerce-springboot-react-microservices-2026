@@ -1,5 +1,10 @@
 package com.devtructt.ecommerce.commondataservice.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public enum ProductFilter {
     GENDER("genders="),
     APPAREL("apparels="),
@@ -8,12 +13,4 @@ public enum ProductFilter {
     SORT_OPTION("sort=");
 
     private final String queryParam;
-
-    ProductFilter(String queryParam) {
-        this.queryParam = queryParam;
-    }
-
-    public String getQueryParam() {
-        return queryParam;
-    }
 }

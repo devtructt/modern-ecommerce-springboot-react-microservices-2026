@@ -3,19 +3,19 @@ package com.devtructt.ecommerce.searchsuggestionservice.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Getter;
+import org.springframework.stereotype.Component;
 
-@Getter
-public class PermutationGenerator {
-    private List<String> permutations = new ArrayList<>();;
-
-    public PermutationGenerator(String[] inputArray) {
+@Component
+public class PermutationGeneratorUtil {
+    public List<String> generate(String[] inputArray) {
+    	List<String> permutations = new ArrayList<>();
         if (inputArray.length > 0) {
-            permute(inputArray, 0, inputArray.length - 1);
+            permute(inputArray, 0, inputArray.length - 1, permutations);
         }
+        return permutations;
     }
 
-    private void permute(String[] inputArray, int left, int right) {
+    private void permute(String[] inputArray, int left, int right, List<String> permutations) {
         if (left == right) {
             permutations.add(String.join(" ", inputArray));
             return;
@@ -23,7 +23,7 @@ public class PermutationGenerator {
 
         for (int index = left; index <= right; index++) {
             swap(inputArray, left, index);
-            permute(inputArray, left + 1, right);
+            permute(inputArray, left + 1, right, permutations);
             swap(inputArray, left, index);
         }
     }

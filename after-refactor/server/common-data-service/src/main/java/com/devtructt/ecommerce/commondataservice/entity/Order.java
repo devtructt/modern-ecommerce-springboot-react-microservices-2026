@@ -44,6 +44,9 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Order parentOrder;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Product product;
 
     public Order(Long customerId, LocalDateTime createdAt, String deliveryStatus, String trackingLink, Order parentOrder) {
         this.customerId = customerId;
