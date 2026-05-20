@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class ProductSpecification {
 	public static Specification<Product> withGenderIds(Collection<Long> genderIds) {
 	    if (CollectionUtils.isEmpty(genderIds)) {
-	        return null;
+	        return Specification.unrestricted();
 	    }
 	    return (root, query, criteriaBuilder) -> {
 	        Join<Product, Gender> gender = root.join("gender", JoinType.INNER);
@@ -30,7 +30,7 @@ public class ProductSpecification {
 	
 	public static Specification<Product> withApparelIds(Collection<Long> apparelIds) {
 	    if (CollectionUtils.isEmpty(apparelIds)) {
-	        return null;
+	        return Specification.unrestricted();
 	    }
 	    return (root, query, criteriaBuilder) -> {
 	        Join<Product, Apparel> apparel = root.join("apparel", JoinType.INNER);
@@ -40,7 +40,7 @@ public class ProductSpecification {
 	
 	public static Specification<Product> withBrandIds(Collection<Long> brandIds) {
 	    if (CollectionUtils.isEmpty(brandIds)) {
-	        return null;
+	        return Specification.unrestricted();
 	    }
 	    return (root, query, criteriaBuilder) -> {
 	        Join<Product, Brand> brand = root.join("brand", JoinType.INNER);
@@ -50,7 +50,7 @@ public class ProductSpecification {
 
 	public static Specification<Product> priceBetween(BigDecimal minPrice, BigDecimal maxPrice) {
 		if (minPrice == null && maxPrice == null) {
-			return null;
+			return Specification.unrestricted();
 		}
 		return (root, query, criteriaBuilder) -> {
 			if (minPrice == null) {
@@ -65,7 +65,7 @@ public class ProductSpecification {
 
 	public static Specification<Product> nameContains(String productName) {
 		if (productName == null || productName.trim().isEmpty()) {
-			return null;
+			return Specification.unrestricted();
 		}
 		return (root, query, criteriaBuilder) -> {
 			String pattern = "%" + productName.trim().toLowerCase() + "%";
