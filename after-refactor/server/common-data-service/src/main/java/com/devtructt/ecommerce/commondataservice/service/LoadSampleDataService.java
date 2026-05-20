@@ -144,7 +144,7 @@ public class LoadSampleDataService {
 						Optional<Gender> gender = genderRepository.findByName(secondaryCategory);
 						String title = primaryCategory + " - " + secondaryCategory;
 						if (apparel.isPresent() && gender.isPresent()) {
-							GenderApparelImage genderApparelImage = new GenderApparelImage(title + secondaryCategory, localImagePath, imageUrl);
+							GenderApparelImage genderApparelImage = new GenderApparelImage(title, localImagePath, imageUrl);
 							genderApparelImage.setApparel(apparel.get());
 							genderApparelImage.setGender(gender.get());
 							genderApparelImageRepository.save(genderApparelImage);

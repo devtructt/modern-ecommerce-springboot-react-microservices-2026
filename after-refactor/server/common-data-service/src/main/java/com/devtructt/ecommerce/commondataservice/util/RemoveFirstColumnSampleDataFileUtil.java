@@ -1,4 +1,4 @@
-package com.devtructt.ecommerce.commondataservice.service;
+package com.devtructt.ecommerce.commondataservice.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class RemoveFirstColumnSampleDataFile {
+public class RemoveFirstColumnSampleDataFileUtil {
     public static void main(String[] args) {
         Path filePath = Path.of("product-data.txt");
 
