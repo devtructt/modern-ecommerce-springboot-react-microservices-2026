@@ -24,9 +24,9 @@ import { TABS_API_OBJECT_LEN } from "../../../constant/constant"
 // import history from "../../../history";
 
 const NavigationBar = () => {
-  const [hamburgerBtnState, setHamburgerBtnState] = React.useState(false);
+  const [hamburgerButtonnState, sethamburgerButtonnState] = React.useState(false);
   const [mobileSearchState, setMobileSearchState] = React.useState(false);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [mobileMoreAnchorElement, setMobileMoreAnchorElement] = React.useState(null);
 
   const dispatch = useDispatch();
   const signIn = useSelector(state => state.signIn);
@@ -36,14 +36,14 @@ const NavigationBar = () => {
   let authIcon = null
   let authLabel = null
   const mobileMenuId = 'primary-search-account-menu-mobile';
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorElement);
 
   const handleSidebarOpen = () => {
-    setHamburgerBtnState(true)
+    sethamburgerButtonnState(true)
   }
 
   const handleSidebarClose = () => {
-    setHamburgerBtnState(false)
+    sethamburgerButtonnState(false)
   }
 
   const handleMobileSearchOpen = () => {
