@@ -17,15 +17,13 @@ import com.devtructt.ecommerce.commondataservice.dto.CarouselImageDto;
 import com.devtructt.ecommerce.commondataservice.dto.GenderApparelImageDto;
 import com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto;
 import com.devtructt.ecommerce.commondataservice.dto.ProductFiltersByGenderDto;
-import com.devtructt.ecommerce.commondataservice.dto.ThreeProductFiltersDto;
-import com.devtructt.ecommerce.commondataservice.dto.TwoProductFiltersDto;
 import com.devtructt.ecommerce.commondataservice.dto.request.ProductFiltersRequest;
 import com.devtructt.ecommerce.commondataservice.dto.response.HomepageImagesResponse;
+import com.devtructt.ecommerce.commondataservice.dto.response.ProductFilterCombinationResponse;
 import com.devtructt.ecommerce.commondataservice.dto.response.ProductFiltersByGenderResponse;
 import com.devtructt.ecommerce.commondataservice.dto.response.ProductFiltersByOtherProductFiltersResponse;
 import com.devtructt.ecommerce.commondataservice.dto.response.ProductsByIdResponse;
 import com.devtructt.ecommerce.commondataservice.dto.response.ProductsWithTotalCountResponse;
-import com.devtructt.ecommerce.commondataservice.dto.response.ProductFilterCombinationResponse;
 import com.devtructt.ecommerce.commondataservice.entity.Gender;
 import com.devtructt.ecommerce.commondataservice.entity.Product;
 import com.devtructt.ecommerce.commondataservice.enums.SortOption;
@@ -88,11 +86,11 @@ public class CommonDataService {
 			return Sort.by(Sort.Direction.DESC, "rating");
 		}
 		return switch (sortOption) {
-		case NEWEST -> Sort.by(Sort.Direction.DESC, "publicationDate");
-		case POPULARITY -> Sort.by(Sort.Direction.DESC, "viewCount");
-		case PRICE_LOW_TO_HIGH -> Sort.by(Sort.Direction.ASC, "price");
-		case PRICE_HIGH_TO_LOW -> Sort.by(Sort.Direction.DESC, "price");
-		default -> Sort.by(Sort.Direction.DESC, "rating");
+			case NEWEST -> Sort.by(Sort.Direction.DESC, "publicationDate");
+			case POPULARITY -> Sort.by(Sort.Direction.DESC, "rating");
+			case PRICE_LOW_TO_HIGH -> Sort.by(Sort.Direction.ASC, "price");
+			case PRICE_HIGH_TO_LOW -> Sort.by(Sort.Direction.DESC, "price");
+			default -> Sort.by(Sort.Direction.DESC, "rating");
 		};
 	}
 
@@ -107,11 +105,10 @@ public class CommonDataService {
 	@Cacheable(value = "commonApi", key = "#productFiltersByGender")
 	public ProductFiltersByGenderResponse getProductFiltersByGender() {
 		List<Gender> genders = genderRepository.findAll();
-		
 		List<ProductFiltersByGenderDto> productFiltersByGenderDtos = new ArrayList<>();
 		for (Gender gender: genders) {
-			List<ProductFilterDto> apparels = modelMapperUtil.mapList(productRepository.findBrandsByGender(gender.getId(), PageRequest.of(0, 10)), ProductFilterDto.class);
-			List<ProductFilterDto> brands = modelMapperUtil.mapList(productRepository.findApparelsByGender(gender.getId(), PageRequest.of(0, 10)), ProductFilterDto.class);
+			List<ProductFilterDto> apparels = productRepository.findBrandsByGender(gender.getId(), PageRequest.of(0, 10));
+			List<ProductFilterDto> brands = productRepository.findApparelsByGender(gender.getId(), PageRequest.of(0, 10));
 			productFiltersByGenderDtos.add(new ProductFiltersByGenderDto(gender.getId(), gender.getName(), brands, apparels));
 		}
 		return new ProductFiltersByGenderResponse(productFiltersByGenderDtos);
@@ -119,27 +116,24 @@ public class CommonDataService {
 
 	@Cacheable(value = "productFiltersByOtherProductFilters", key = "#productFiltersRequest")
 	public ProductFiltersByOtherProductFiltersResponse getProductFiltersByOtherProductFilters(ProductFiltersRequest productFiltersRequest) {
-		List<ProductFilterDto> genders = modelMapperUtil.mapList(productRepository.findGendersByOtherProductFilters(
+		List<ProductFilterDto> genders = productRepository.findGendersByOtherProductFilters(
 				productFiltersRequest.getApparelIds(),
 				productFiltersRequest.getBrandIds(),
 				productFiltersRequest.getProductName(),
 				productFiltersRequest.getMinPrice(),
-				productFiltersRequest.getMaxPrice()),	
-				ProductFilterDto.class);
-		List<ProductFilterDto> apparels = modelMapperUtil.mapList(productRepository.findApparelsByOtherProductFilters(
+				productFiltersRequest.getMaxPrice());
+		List<ProductFilterDto> apparels = productRepository.findApparelsByOtherProductFilters(
 				productFiltersRequest.getGenderIds(),
 				productFiltersRequest.getBrandIds(),
 				productFiltersRequest.getProductName(),
 				productFiltersRequest.getMinPrice(),
-				productFiltersRequest.getMaxPrice()),	
-				ProductFilterDto.class);
-		List<ProductFilterDto> brands = modelMapperUtil.mapList(productRepository.findBrandsByByOtherProductFilters(
+				productFiltersRequest.getMaxPrice());
+		List<ProductFilterDto> brands = productRepository.findBrandsByByOtherProductFilters(
 				productFiltersRequest.getGenderIds(),
 				productFiltersRequest.getApparelIds(),
 				productFiltersRequest.getProductName(),
 				productFiltersRequest.getMinPrice(),
-				productFiltersRequest.getMaxPrice()),	
-				ProductFilterDto.class);
+				productFiltersRequest.getMaxPrice());
 		return new ProductFiltersByOtherProductFiltersResponse(
 				genders,
 				apparels,
@@ -149,24 +143,15 @@ public class CommonDataService {
 				productFiltersRequest.getSortOption());
 	}
 
-	public ProductFilterCombinationResponse getSearchSuggestions() {
-		List<TwoProductFiltersDto> genderApparelSuggestions = modelMapperUtil.mapList(
-				productRepository.findDistinctGenderApparelSuggestions(), TwoProductFiltersDto.class);
-		List<TwoProductFiltersDto> genderBrandSuggestions = modelMapperUtil.mapList(
-				productRepository.findDistinctGenderBrandSuggestions(), TwoProductFiltersDto.class);
-		List<TwoProductFiltersDto> apparelBrandSuggestions = modelMapperUtil.mapList(
-				productRepository.findDistinctApparelBrandSuggestions(), TwoProductFiltersDto.class);
-		List<ThreeProductFiltersDto> genderApparelBrandSuggestions = modelMapperUtil.mapList(
-				productRepository.findDistinctGenderApparelBrandSuggestions(), ThreeProductFiltersDto.class);
-		
+	public ProductFilterCombinationResponse getProductFilterCombinations() {
 		return new ProductFilterCombinationResponse(
 				genderRepository.findAll(),
 				apparelRepository.findAll(),
 				brandRepository.findAll(),
-				genderApparelSuggestions,
-				genderBrandSuggestions,
-				apparelBrandSuggestions,
-				genderApparelBrandSuggestions,
+				productRepository.findDistinctGenderApparelCombinations(),
+				productRepository.findDistinctGenderBrandCombinations(),
+				productRepository.findDistinctApparelBrandCombinations(),
+				productRepository.findDistinctGenderApparelBrandCombinations(),
 				productRepository.findDistinctProductNames());
 	}
 }

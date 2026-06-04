@@ -10,9 +10,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto;
 import com.devtructt.ecommerce.commondataservice.dto.ThreeProductFiltersDto;
 import com.devtructt.ecommerce.commondataservice.dto.TwoProductFiltersDto;
-import com.devtructt.ecommerce.commondataservice.dto.projection.ProductFilterProjection;
 import com.devtructt.ecommerce.commondataservice.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
@@ -24,35 +24,44 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 	List<String> findDistinctProductNames();
 	
     @Query("""
-        SELECT a.id AS id, 
-               a.name AS name, 
-               COUNT(p.id) AS productCount
+		SELECT NEW com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto
+    		(
+	        a.id,
+	        a.name,
+	        COUNT(p.id)
+      		)
         FROM Product p
         JOIN p.apparel a
         WHERE p.gender.id = :genderId 
           AND p.verificationStatus = true
         GROUP BY a.id, a.name
-        ORDER BY productCount DESC
+        ORDER BY COUNT(p.id) DESC
         """)
-    List<ProductFilterProjection> findApparelsByGender(@Param("genderId") Long genderId, Pageable pageable);
+    List<ProductFilterDto> findApparelsByGender(@Param("genderId") Long genderId, Pageable pageable);
 	
 	@Query("""
-	        SELECT b.id AS id, 
-	               b.name AS name, 
-	               COUNT(p.id) AS productCount
-	        FROM Product p
-	        JOIN p.brand b
-	        WHERE p.gender.id = :genderId 
-	          AND p.verificationStatus = true
-	        GROUP BY b.id, b.name
-	        ORDER BY productCount DESC
-	        """)
-	    List<ProductFilterProjection> findBrandsByGender(@Param("genderId") Long genderId, Pageable pageable);
+		SELECT NEW com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto
+		(
+	        b.id,
+	        b.name,
+	        COUNT(p.id)
+        )
+        FROM Product p
+        JOIN p.brand b
+        WHERE p.gender.id = :genderId 
+          AND p.verificationStatus = true
+        GROUP BY b.id, b.name
+        ORDER BY COUNT(p.id) DESC
+        """)
+    List<ProductFilterDto> findBrandsByGender(@Param("genderId") Long genderId, Pageable pageable);
 
     @Query("""
-        SELECT g.id AS id,
-    		   g.name AS name,
-    		   COUNT(p.id) AS productCount
+		SELECT NEW com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto
+    		(
+		        g.id,
+		        g.name,
+		        COUNT(p.id)
+	        )
         FROM Product p 
         JOIN p.gender g 
         WHERE p.verificationStatus = true
@@ -62,9 +71,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
           AND (:maxPrice IS NULL OR p.price <= :maxPrice)
           AND (:productName IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :productName, '%')))
         GROUP BY g.id, g.name
-        ORDER BY productCount DESC
+        ORDER BY COUNT(p.id) DESC
         """)
-    List<ProductFilterProjection> findGendersByOtherProductFilters(
+    List<ProductFilterDto> findGendersByOtherProductFilters(
             @Param("apparelIds") Collection<Long> apparelIds,
             @Param("brandIds") Collection<Long> brandIds,
             @Param("productName") String productName,
@@ -72,9 +81,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             @Param("maxPrice") BigDecimal maxPrice);
     
     @Query("""
-        SELECT a.id AS id,
-    		   a.name AS name,
-    		   COUNT(p.id) AS productCount
+		SELECT NEW com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto
+    		(
+		        a.id,
+		        a.name,
+		        COUNT(p.id)
+	        )
         FROM Product p 
         JOIN p.apparel a 
         WHERE p.verificationStatus = true
@@ -84,9 +96,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
           AND (:maxPrice IS NULL OR p.price <= :maxPrice)
           AND (:productName IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :productName, '%')))
         GROUP BY a.id, a.name
-        ORDER BY productCount DESC
+        ORDER BY COUNT(p.id) DESC
         """)
-    List<ProductFilterProjection> findApparelsByOtherProductFilters(
+    List<ProductFilterDto> findApparelsByOtherProductFilters(
             @Param("genderIds") Collection<Long> genderIds,
             @Param("brandIds") Collection<Long> brandIds,
             @Param("productName") String productName,
@@ -94,9 +106,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             @Param("maxPrice") BigDecimal maxPrice);
     
     @Query("""
-        SELECT b.id AS id,
-    		   b.name AS name,
-    		   COUNT(p.id) AS productCount
+		SELECT NEW com.devtructt.ecommerce.commondataservice.dto.ProductFilterDto
+    		(
+		        b.id,
+		        b.name,
+		        COUNT(p.id)
+	        )
         FROM Product p 
         JOIN p.brand b 
         WHERE p.verificationStatus = true
@@ -106,9 +121,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
           AND (:maxPrice IS NULL OR p.price <= :maxPrice)
           AND (:productName IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :productName, '%')))
         GROUP BY b.id, b.name
-        ORDER BY productCount DESC
+        ORDER BY COUNT(p.id) DESC
         """)
-    List<ProductFilterProjection> findBrandsByByOtherProductFilters(
+    List<ProductFilterDto> findBrandsByByOtherProductFilters(
             @Param("genderIds") Collection<Long> genderIds,
             @Param("apparelIds") Collection<Long> apparelIds,
             @Param("productName") String productName,
@@ -116,53 +131,65 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             @Param("maxPrice") BigDecimal maxPrice);
     
     @Query("""
-    	SELECT DISTINCT g.id AS firstProductFilterId,
-    			        g.name AS firstProductFilterName,
-    			        a.id AS secondProductFilterId,
-    			        a.name AS secondProductFilterName
+		SELECT DISTINCT NEW com.devtructt.ecommerce.commondataservice.dto.TwoProductFiltersDto
+    		(
+		        g.id,
+		        g.name,
+		        a.id,
+		        a.name
+	        )
 	    FROM Product p
-	    WHERE p.verificationStatus = true
 	    JOIN p.gender g
 	    JOIN p.apparel a
+	    WHERE p.verificationStatus = true
     	""")
-	List<TwoProductFiltersDto> findDistinctGenderApparelSuggestions();
+	List<TwoProductFiltersDto> findDistinctGenderApparelCombinations();
     
     @Query("""
-    	SELECT DISTINCT g.id AS firstProductFilterId,
-    			        g.name AS firstProductFilterName,
-    			        b.id AS secondProductFilterId,
-    			        b.name AS secondProductFilterName
+		SELECT DISTINCT NEW com.devtructt.ecommerce.commondataservice.dto.TwoProductFiltersDto
+    		(
+		        g.id,
+		        g.name,
+		        b.id,
+		        b.name
+	        )
 	    FROM Product p
-	    WHERE p.verificationStatus = true
 	    JOIN p.gender g
 	    JOIN p.brand b
+	    WHERE p.verificationStatus = true
     	""")
-	List<TwoProductFiltersDto> findDistinctGenderBrandSuggestions();
+	List<TwoProductFiltersDto> findDistinctGenderBrandCombinations();
     
     @Query("""
-    	SELECT DISTINCT a.id AS firstProductFilterId,
-    			        a.name AS firstProductFilterName,
-    			        b.id AS secondProductFilterId,
-    			        b.name AS secondProductFilterName
+		SELECT DISTINCT NEW com.devtructt.ecommerce.commondataservice.dto.TwoProductFiltersDto
+    		(
+		        a.id,
+		        a.name,
+		        b.id,
+		        b.name
+	        )
 	    FROM Product p
-	    WHERE p.verificationStatus = true
 	    JOIN p.apparel a
 	    JOIN p.brand b
+	    WHERE p.verificationStatus = true
     	""")
-	List<TwoProductFiltersDto> findDistinctApparelBrandSuggestions();
+	List<TwoProductFiltersDto> findDistinctApparelBrandCombinations();
     
     @Query("""
-    	SELECT DISTINCT g.id AS firstProductFilterId,
-    			        g.name AS firstProductFilterName,
-    			        a.id AS secondProductFilterId,
-    			        a.name AS secondProductFilterName,
-    			        b.id AS thirdProductFilterId,
-    			        b.name AS thirdProductFilterName
+		SELECT DISTINCT NEW com.devtructt.ecommerce.commondataservice.dto.ThreeProductFiltersDto
+    		(
+		        g.id,
+		        g.name,
+		        a.id,
+		        a.name,
+		        b.id,
+		        b.name
+	        )
 	    FROM Product p
-	    WHERE p.verificationStatus = true
 	    JOIN p.gender g
 	    JOIN p.apparel a
 	    JOIN p.brand b
+	    WHERE p.verificationStatus = true
     	""")
-	List<ThreeProductFiltersDto> findDistinctGenderApparelBrandSuggestions();
+	List<ThreeProductFiltersDto> findDistinctGenderApparelBrandCombinations();
 }

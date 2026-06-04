@@ -11,6 +11,6 @@ cors:
 
 services:
   common-data:
-    base-url: http://common-data-service:8082
+    base-url: http://localhost:8082
     endpoints:
-      search-suggestion-list: ${services.common-data.base-url}/search-suggestion-list
+      product-filters-combinations: ${services.common-data.base-url}/product-filters/combinations

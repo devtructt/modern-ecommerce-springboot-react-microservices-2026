@@ -18,12 +18,12 @@ public class SearchSuggestionController {
     private final SearchSuggestionService searchSuggestionService;
 
     @GetMapping("/search-suggestions")
-    public ResponseEntity<List<SearchSuggestionResponse>> searchSuggestions(@RequestParam String keyword) {
+    public ResponseEntity<List<SearchSuggestionResponse>> getSearchSuggestions(@RequestParam String keyword) {
         return ResponseEntity.ok(searchSuggestionService.getSearchSuggestions(keyword));
     }
 
     @GetMapping("/default-search-suggestions")
-    public ResponseEntity<List<SearchSuggestionResponse>> getDefaultSuggestions() {
-        return ResponseEntity.ok(searchSuggestionService.getDefaultSuggestions());
+    public ResponseEntity<List<SearchSuggestionResponse>> getDefaultSearchSuggestions() {
+        return ResponseEntity.ok(searchSuggestionService.getDefaultSearchSuggestions());
     }
 }

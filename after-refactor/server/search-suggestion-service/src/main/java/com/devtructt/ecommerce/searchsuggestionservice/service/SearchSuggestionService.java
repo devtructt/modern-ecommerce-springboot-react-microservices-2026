@@ -5,7 +5,6 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +32,9 @@ import reactor.util.retry.Retry;
 @RequiredArgsConstructor
 public class SearchSuggestionService {
     private final WebClient webClient;
-    
     private final PermutationGeneratorUtil permutationGeneratorUtil;
 
-    @Value("${services.common-data.endpoints.search-suggestion-list}")
+    @Value("${services.common-data.endpoints.product-filters-combinations}")
     private String searchSuggestionsUrl;
 
     private Map<String, List<SearchSuggestionResponse>> keywordSuggestionsByPrefix = new HashMap<>();
@@ -143,14 +141,16 @@ public class SearchSuggestionService {
 	}
 
     public List<SearchSuggestionResponse> getSearchSuggestions(String keyword) {
-        return Stream.iterate(keyword.length(), index -> index > 0, index -> index - 1)
-                .map(index -> keyword.substring(0, index).toLowerCase())
-                .map(keywordSuggestionsByPrefix::get)
-                .findFirst()
-                .orElseGet(Collections::emptyList);
+        for (int i = keyword.length(); i > 0; i--) {
+            List<SearchSuggestionResponse> result = keywordSuggestionsByPrefix.get(keyword.substring(0, i).toLowerCase());
+            if (result != null) {
+                return result;
+            }
+        }
+        return List.of();
     }
 
-    public List<SearchSuggestionResponse> getDefaultSuggestions() {
-        return Collections.unmodifiableList(defaultSearchSuggestions);
+    public List<SearchSuggestionResponse> getDefaultSearchSuggestions() {
+        return defaultSearchSuggestions;
     }
 }
