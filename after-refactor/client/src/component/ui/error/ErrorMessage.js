@@ -1,9 +1,7 @@
 import React from 'react';
 import { Grid, Typography } from '@mui/material';
 
-const ERROR_MESSAGES = {
-  generic: 'Oops! Something went wrong...',
-};
+const ERROR_MESSAGES = 'Oops! Something went wrong...';
 
 const ErrorMessage = () => {
   return (

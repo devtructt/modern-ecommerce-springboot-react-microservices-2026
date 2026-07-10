@@ -27,8 +27,8 @@ const App = () => {
 
     return (
         <Router history={history}>
-            <TabList />
-            {/* <NavBar errorHandler={setServerErrorHandler} /> */}
+            {/* <TabList /> */}
+            <NavBar errorHandler={setServerErrorHandler} />
             {/* <TabPanelList/>
             {serverError ? null: <Switch>
                 <Route path="/" exact component={Home}/>

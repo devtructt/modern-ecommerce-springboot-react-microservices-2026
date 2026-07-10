@@ -80,102 +80,102 @@ const NavBar = props => {
     /**
      * This will execute only once.
      */
-    useEffect(() => {
-        log.info(`[NavBar]: Component did update.`)
+    // useEffect(() => {
+    //     log.info(`[NavBar]: Component did update.`)
 
-        if (!googleAuthReducer.oAuth) {
-            window.gapi.load('client:auth2', () => {
-                window.gapi.client.init({
-                    clientId: process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID,
-                    scope: 'profile'
-                }).then(() => {
-                    const auth = window.gapi.auth2.getAuthInstance();
-                    dispatch({
-                        type: SET_GOOGLE_AUTH,
-                        payload: {
-                            firstName: auth.currentUser.get().getBasicProfile() ?
-                                auth.currentUser.get().getBasicProfile().getGivenName() : null,
-                            oAuth: auth
-                        }
-                    })
-                }).catch(function () {
-                    log.error(`[Navbar] Failed to load google OAuth`)
-                })
-            });
-        }
+    //     if (!googleAuthReducer.oAuth) {
+    //         window.gapi.load('client:auth2', () => {
+    //             window.gapi.client.init({
+    //                 clientId: process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID,
+    //                 scope: 'profile'
+    //             }).then(() => {
+    //                 const auth = window.gapi.auth2.getAuthInstance();
+    //                 dispatch({
+    //                     type: SET_GOOGLE_AUTH,
+    //                     payload: {
+    //                         firstName: auth.currentUser.get().getBasicProfile() ?
+    //                             auth.currentUser.get().getBasicProfile().getGivenName() : null,
+    //                         oAuth: auth
+    //                     }
+    //                 })
+    //             }).catch(function () {
+    //                 log.error(`[Navbar] Failed to load google OAuth`)
+    //             })
+    //         });
+    //     }
 
-        if (isSignedIn === null) {
-            // if user is not signed in then signed it in using
-            // account details from the cookie.
+    //     if (isSignedIn === null) {
+    //         // if user is not signed in then signed it in using
+    //         // account details from the cookie.
 
-            log.info(`[NavBar]: isSignedIn is null`)
-            let savedAuthDetails = Cookies.get(AUTH_DETAILS_COOKIE)
-            if (savedAuthDetails) {
-                log.info(`[NavBar]: setting Auth Details from Cookie`)
-                props.setAuthDetailsFromCookie(JSON.parse(savedAuthDetails))
-            }
-        }
+    //         log.info(`[NavBar]: isSignedIn is null`)
+    //         let savedAuthDetails = Cookies.get(AUTH_DETAILS_COOKIE)
+    //         if (savedAuthDetails) {
+    //             log.info(`[NavBar]: setting Auth Details from Cookie`)
+    //             props.setAuthDetailsFromCookie(JSON.parse(savedAuthDetails))
+    //         }
+    //     }
 
-        // tabs data is not loaded then load it.
-        if (!tabsAPIData.hasOwnProperty("data")) {
-            props.getDataViaAPI(LOAD_TABS_DATA, TABS_DATA_API, null, false)
-        }
+    //     // tabs data is not loaded then load it.
+    //     if (!tabsAPIData.hasOwnProperty("data")) {
+    //         props.getDataViaAPI(LOAD_TABS_DATA, TABS_DATA_API, null, false)
+    //     }
 
-        // set the cart values
-        setAddToCartValuesFromCookie()
+    //     // set the cart values
+    //     setAddToCartValuesFromCookie()
 
-        // set default search suggestions
-        props.setDefaultSearchSuggestions()
+    //     // set default search suggestions
+    //     props.setDefaultSearchSuggestions()
 
-        // eslint-disable-next-line
-    }, [isSignedIn, tabsDataReducer]);
+    //     // eslint-disable-next-line
+    // }, [isSignedIn, tabsDataReducer]);
 
-    if (tabsAPIData.isLoading) {
-        log.info("[NavBar]: loading")
-        return null
-    } else {
-        if (tabsAPIData.hasOwnProperty("data")) {
-            if (Object.entries(tabsAPIData.data).length !== TABS_API_OBJECT_LEN) {
+    // if (tabsAPIData.isLoading) {
+    //     log.info("[NavBar]: loading")
+    //     return null
+    // } else {
+    //     if (tabsAPIData.hasOwnProperty("data")) {
+    //         if (Object.entries(tabsAPIData.data).length !== TABS_API_OBJECT_LEN) {
 
-                log.info(`[NavBar]: tabsAPIData.data length didn't matched` +
-                    `actual length = ${Object.entries(tabsAPIData.data).length},` +
-                    `expected length = ${TABS_API_OBJECT_LEN}`)
+    //             log.info(`[NavBar]: tabsAPIData.data length didn't matched` +
+    //                 `actual length = ${Object.entries(tabsAPIData.data).length},` +
+    //                 `expected length = ${TABS_API_OBJECT_LEN}`)
 
-                return <BadRequest/>
-            }
-        } else {
-            if (tabsAPIData.hasOwnProperty("statusCode")) {
-                log.info(`[NavBar]: tabsAPIData.statusCode = ${tabsAPIData.statusCode}`)
-                props.errorHandler()
-                return <HTTPError statusCode={tabsAPIData.statusCode}/>
-            }
-        }
-    }
+    //             return <BadRequest/>
+    //         }
+    //     } else {
+    //         if (tabsAPIData.hasOwnProperty("statusCode")) {
+    //             log.info(`[NavBar]: tabsAPIData.statusCode = ${tabsAPIData.statusCode}`)
+    //             props.errorHandler()
+    //             return <HTTPError statusCode={tabsAPIData.statusCode}/>
+    //         }
+    //     }
+    // }
 
-    if (isSignedIn || googleAuthReducer.isSignedInUsingOAuth) {
-        let fName
-        if (firstName) {
-            fName = firstName
-        } else if (googleAuthReducer.isSignedInUsingOAuth) {
-            fName = googleAuthReducer.firstName
-        } else {
-            fName = "S"
-        }
+    // if (isSignedIn || googleAuthReducer.isSignedInUsingOAuth) {
+    //     let fName
+    //     if (firstName) {
+    //         fName = firstName
+    //     } else if (googleAuthReducer.isSignedInUsingOAuth) {
+    //         fName = googleAuthReducer.firstName
+    //     } else {
+    //         fName = "S"
+    //     }
 
-        authIcon = <Avatar sizes="small"
-                           style={{
-                               width: 20, height: 20,
-                               backgroundColor: "orange",
-                               filter: "saturate(5)"
-                           }}>
+    //     authIcon = <Avatar sizes="small"
+    //                        style={{
+    //                            width: 20, height: 20,
+    //                            backgroundColor: "orange",
+    //                            filter: "saturate(5)"
+    //                        }}>
 
-            {fName.charAt(0).toUpperCase()}
-        </Avatar>
-        authLabel = "Sign Out"
-    } else {
-        authIcon = <AccountCircle/>
-        authLabel = "Sign In"
-    }
+    //         {fName.charAt(0).toUpperCase()}
+    //     </Avatar>
+    //     authLabel = "Sign Out"
+    // } else {
+    //     authIcon = <AccountCircle/>
+    //     authLabel = "Sign In"
+    // }
 
     const changeAuthStatusHandler = () => {
         log.info(`[Navbar] handleSignOutClick isSignedIn = ${googleAuthReducer.isSignedInUsingOAuth}`)
@@ -266,84 +266,85 @@ const NavBar = props => {
 
     log.info(`[NavBar]: Rendering NavBar Component`)
     return (
-        <>
-            <SideBar open={hamburgerBtnState} closeHandler={handleSidebarClose}/>
+        <SearchBar device='mobile' size='medium' handleClose={handleMobileSearchClose} />
+        // <>
+        //     <SideBar open={hamburgerBtnState} closeHandler={handleSidebarClose}/>
 
-            <div style={{paddingBottom: 80}}>
-                <AppBar color="default" className={classes.appBarRoot}>
-                    <Toolbar classes={{root: classes.toolBarRoot}}>
-                        <Grid container alignItems="center">
-                            <Hidden lgUp>
-                                {!mobileSearchState ?
-                                    <Grid item>
-                                        <IconButton
-                                            edge="start"
-                                            className={classes.menuButton}
-                                            color="inherit"
-                                            aria-label="open drawer"
-                                            onClick={handleSidebarOpen}>
-                                            <MenuIcon fontSize="large"/>
-                                        </IconButton>
-                                    </Grid> : null}
-                            </Hidden>
+        //     <div style={{paddingBottom: 80}}>
+        //         <AppBar color="default" className={classes.appBarRoot}>
+        //             <Toolbar classes={{root: classes.toolBarRoot}}>
+        //                 <Grid container alignItems="center">
+        //                     <Hidden lgUp>
+        //                         {!mobileSearchState ?
+        //                             <Grid item>
+        //                                 <IconButton
+        //                                     edge="start"
+        //                                     className={classes.menuButton}
+        //                                     color="inherit"
+        //                                     aria-label="open drawer"
+        //                                     onClick={handleSidebarOpen}>
+        //                                     <MenuIcon fontSize="large"/>
+        //                                 </IconButton>
+        //                             </Grid> : null}
+        //                     </Hidden>
 
-                            {!mobileSearchState ? <Grid item>
-                                <Link to="/">
-                                    <Typography className={classes.title}>
-                                        Shoppers
-                                    </Typography>
-                                </Link>
-                            </Grid> : null}
+        //                     {!mobileSearchState ? <Grid item>
+        //                         <Link to="/">
+        //                             <Typography className={classes.title}>
+        //                                 Shoppers
+        //                             </Typography>
+        //                         </Link>
+        //                     </Grid> : null}
 
-                            <div className={classes.growHalf}/>
+        //                     <div className={classes.growHalf}/>
 
-                            <Hidden mdDown>
-                                <Grid item xs={5}>
-                                    <TabList/>
-                                </Grid>
+        //                     <Hidden mdDown>
+        //                         <Grid item xs={5}>
+        //                             <TabList/>
+        //                         </Grid>
 
-                                <div className={classes.growHalf}/>
-                            </Hidden>
+        //                         <div className={classes.growHalf}/>
+        //                     </Hidden>
 
-                            <Hidden xsDown>
-                                <Grid item container sm={6} md={7} lg={4}>
-                                    <SearchBar size="small"/>
-                                </Grid>
-                            </Hidden>
+        //                     <Hidden xsDown>
+        //                         <Grid item container sm={6} md={7} lg={4}>
+        //                             <SearchBar size="small"/>
+        //                         </Grid>
+        //                     </Hidden>
 
-                            <Hidden smUp>
-                                <div className={classes.growHalf}/>
-                                <div className={classes.growHalf}/>
-                                {renderMobileSearchInputField()}
-                            </Hidden>
+        //                     <Hidden smUp>
+        //                         <div className={classes.growHalf}/>
+        //                         <div className={classes.growHalf}/>
+        //                         {renderMobileSearchInputField()}
+        //                     </Hidden>
 
-                            <Hidden xsDown>
-                                <div className={classes.growHalf}/>
+        //                     <Hidden xsDown>
+        //                         <div className={classes.growHalf}/>
 
-                                {renderIndependentElem(changeAuthStatusHandler, authIcon, authLabel,
-                                    2)}
+        //                         {renderIndependentElem(changeAuthStatusHandler, authIcon, authLabel,
+        //                             2)}
 
-                                <div className={classes.growQuarter}/>
+        //                         <div className={classes.growQuarter}/>
 
-                                {renderIndependentElem(changePageToShoppingBagHandler, <BagButton/>,
-                                    "Bag", 0)}
-                            </Hidden>
+        //                         {renderIndependentElem(changePageToShoppingBagHandler, <BagButton/>,
+        //                             "Bag", 0)}
+        //                     </Hidden>
 
-                        </Grid>
-                    </Toolbar>
-                </AppBar>
+        //                 </Grid>
+        //             </Toolbar>
+        //         </AppBar>
 
-                <MobileMenu mobileMenuId={mobileMenuId}
-                            authIcon={authIcon}
-                            authLabel={authLabel}
-                            authBtnHandler={changeAuthStatusHandler}
-                            bagBtnHandler={changePageToShoppingBagHandler}
-                            mobileMoreAnchorEl={mobileMoreAnchorEl}
-                            isMobileMenuOpen={isMobileMenuOpen}
-                            handleMobileMenuClose={handleMobileMenuClose}
-                />
-            </div>
-        </>
+        //         <MobileMenu mobileMenuId={mobileMenuId}
+        //                     authIcon={authIcon}
+        //                     authLabel={authLabel}
+        //                     authBtnHandler={changeAuthStatusHandler}
+        //                     bagBtnHandler={changePageToShoppingBagHandler}
+        //                     mobileMoreAnchorEl={mobileMoreAnchorEl}
+        //                     isMobileMenuOpen={isMobileMenuOpen}
+        //                     handleMobileMenuClose={handleMobileMenuClose}
+        //         />
+        //     </div>
+        // </>
     );
 };
 

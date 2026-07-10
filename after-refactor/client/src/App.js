@@ -19,12 +19,12 @@ import { useTheme } from '@mui/material/styles';
 const App = () => {
   const [serverError, setServerError] = useState(false);
 
-  const handleServerError = () => setServerError(true);
+  const setServerErrorHandler = () => setServerError(true);
 
   if (serverError) {
     return (
       <>
-        <NavigationBar errorHandler={handleServerError} />
+        <NavigationBar errorHandler={setServerErrorHandler} />
         {/* <TabPanelList /> */}
       </>
     );
@@ -32,7 +32,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <NavigationBar errorHandler={handleServerError} />
+      <NavigationBar errorHandler={setServerErrorHandler} />
       {/* <TabPanelList />
       {serverError ? null : (
         <Suspense fallback={<div>Loading...</div>}>
