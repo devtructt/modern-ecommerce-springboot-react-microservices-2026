@@ -2,18 +2,18 @@ import React, { useRef } from 'react'
 import { Tabs, Tab } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { handleTabHoverEvent } from '../../../slice/event/tab-hover-event-slice';
+import { setTabHoverState } from '../../../slice/event/tab-hover-event-slice';
 import { TAB_CONFIG } from '../../../constant/constant';
 
 const TabList = () => {
   const tabsRef = useRef(null);
   const dispatch = useDispatch();
-  let { tabIndex } = useSelector(state => state.tabHoverEvent);
-  const indicatorColor = tabIndex === null ? 'transparent' : TAB_CONFIG[tabIndex]?.color || 'transparent';
+  let { tabIndex } = useSelector(state => state.tabHover);
+  const tabIndicatorColor = tabIndex ? TAB_CONFIG[tabIndex]?.color || 'transparent' : 'transparent';
 
   const handleMouseEnter = event => {
-    const tabIndex = parseInt(event.currentTarget.dataset.index, 10);
-    dispatch(handleTabHoverEvent({ tabIndex: tabIndex, hover: true }));
+    const tabIndex = parseInt(event.currentTarget.dataset.index);
+    dispatch(setTabHoverState({ hover: true, tabIndex }));
   }
 
   const handleMouseLeave = event => {
@@ -21,7 +21,7 @@ const TabList = () => {
     if (!tabsRefRect) return;
     const { clientX, clientY } = event;
     if (clientX < tabsRefRect.left || clientX > tabsRefRect.right || clientY < tabsRefRect.top) {
-      dispatch(handleTabHoverEvent({ tabIndex: null, hover: false }));
+      dispatch(setTabHoverState({ hover: false, tabIndex: false }));
     }
   }
 
@@ -33,7 +33,7 @@ const TabList = () => {
         indicator: {
           sx: {
             height: '4px',
-            backgroundColor: indicatorColor,
+            backgroundColor: tabIndicatorColor,
           }
         }
       }}
@@ -42,16 +42,17 @@ const TabList = () => {
         <Tab
           key={index}
           data-index={index}
-          label={tab.title}
+          label={tab.label}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           sx={theme => ({
-            height: '80px',
+            width: "auto",
+            minWidth: { xs: 0, lg: 50 },
+            height: 80,
             flexGrow: 1,
-            '&.Mui-selected': {
-              color: 'black',
-              fontWeight: '600',
-            }
+            fontSize: { md: '1rem' },
+            fontWeight: 600,
+            color: 'common.black',
           })}
         />
       ))}

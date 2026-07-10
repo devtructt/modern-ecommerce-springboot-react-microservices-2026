@@ -1,18 +1,22 @@
-import { useEffect, useCallback } from "react";
+import { useEffect } from 'react';
 
-const useClickAway = closeHandler => {
-  const handleClickAway = useCallback(event => {
-    if (event.target.closest('.MuiBackdrop-root')) {
-      closeHandler();
-    }
-  }, [closeHandler])
-
+export function useClickAway(ref, onClose) {
   useEffect(() => {
-    document.addEventListener('pointerdown', handleClickAway);
-    return () => {
-      document.removeEventListener('pointerdown', handleClickAway);
-    };
-  }, [handleClickAway]);
-}
+    function handleClickOutside(event) {
+      if (!ref.current) return;
 
-export default useClickAway;;
+      const isClickOnBackdrop = event.target.getAttribute('class')?.includes('MuiBackdrop-root');
+      const isClickOutside = !ref.current.contains(event.target);
+
+      if (isClickOnBackdrop || isClickOutside) {
+        onClose();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [ref, onClose]);
+}

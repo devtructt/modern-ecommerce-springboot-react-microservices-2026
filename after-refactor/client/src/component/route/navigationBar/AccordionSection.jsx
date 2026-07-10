@@ -14,18 +14,18 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { TAB_CONFIG } from '../../../constant/constant';
 import { PRODUCTS_ROUTE } from '../../../constant/react-route';
 
-const TOP_BRANDS_TITLE = 'Top Brands';
-const TOP_CATEGORIES_TITLE = 'Top Categories';
+const TOP_BRANDS_LABEL = 'Top Brands';
+const TOP_CATEGORIES_LABEL = 'Top Categories';
+const ACCORDION_HEIGHT = '48px';
 
-const HEIGHT = '48px';
-
-const ItemLink = ({ item, queryParam }) => {
+function ItemLink({ item, queryParam }) {
   return (
-    <Grid item>
+    <Grid>
       <Link to={`${PRODUCTS_ROUTE}?q=${queryParam}=${item.id}`} style={{ textDecoration: 'none' }}>
         <Typography
-          sx={theme => ({
-            fontSize: theme.typography.pxToRem(14),
+          sx={(theme) => ({
+            fontSize: theme.typography.pxToRem(16),
+            fontWeight: theme.typography.fontWeightLight,
             color: theme.palette.text.primary,
           })}
         >
@@ -35,31 +35,46 @@ const ItemLink = ({ item, queryParam }) => {
       </Link>
     </Grid>
   );
-};
+}
 
-const NestedAccordion = ({ title, items, queryParam }) => {
+function NestedAccordion({ label, items, queryParam }) {
   return (
     <Accordion square elevation={0}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
-        slotProps={{
-          root: {
-            sx: {
-              minHeight: HEIGHT,
-              '&.Mui-expanded': {
-                height: HEIGHT,
-                minHeight: HEIGHT,
-                margin: 0,
-              },
-            },
+        sx={{
+          minHeight: ACCORDION_HEIGHT,
+          height: ACCORDION_HEIGHT,
+          width: {
+            xs: '244',
+            sm: '364',
           },
+          '&.Mui-expanded': {
+            margin: 0,
+            minHeight: ACCORDION_HEIGHT,
+            height: ACCORDION_HEIGHT,
+            alignItems: "center"
+          }
+        }}
+        slotProps={{
+          content: {
+            sx: {
+              margin: "5px 0",
+              padding: "0 15px"
+            }
+          }
         }}
       >
-        <Typography sx={theme => ({ fontSize: theme.typography.pxToRem(14) })}>
-          {title}
+        <Typography
+          sx={(theme) => ({
+            fontSize: theme.typography.pxToRem(16),
+            fontWeight: theme.typography.fontWeightRegular
+          })}
+        >
+          {label}
         </Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={{ pt: 0 }}>
         <Grid container direction='column' spacing={3} sx={{ paddingLeft: '2rem' }}>
           {items.map((item) => (
             <ItemLink key={item.id} item={item} queryParam={queryParam} />
@@ -68,54 +83,59 @@ const NestedAccordion = ({ title, items, queryParam }) => {
       </AccordionDetails>
     </Accordion>
   );
-};
+}
 
-export default function AccordionSection() {
-  const tabsData = useSelector((state) => state.tabsDataReducer?.data);
+function AccordionSection() {
+  const tabsData = useSelector(state => state.tabsData?.data);
 
   return TAB_CONFIG.map(tab => {
     const { brands = [], categories = [] } = tabsData?.[tab.id] || {};
 
     return (
-      <Accordion key={tab.id}
-        square
-        elevation={0}
-        sx={{
-          '&:before': { display: 'none' },
-        }}
-      >
+      <Accordion key={tab.id} square elevation={0} sx={{ width: '100%' }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
+          sx={{
+            minHeight: ACCORDION_HEIGHT,
+            height: ACCORDION_HEIGHT,
+            '&.Mui-expanded': {
+              margin: 0,
+              minHeight: ACCORDION_HEIGHT,
+              height: ACCORDION_HEIGHT,
+              alignItems: "center"
+            }
+          }}
           slotProps={{
-            root: {
+            content: {
               sx: {
-                minHeight: HEIGHT,
-                '&.Mui-expanded': {
-                  height: HEIGHT,
-                  minHeight: HEIGHT,
-                  margin: 0,
-                },
-              },
-            },
+                margin: "5px 0",
+                padding: "0 15px"
+              }
+            }
           }}
         >
-          <Typography sx={(theme) => ({ fontSize: theme.typography.pxToRem(14) })}>
-            {tab.title}
+          <Typography
+            sx={(theme) => ({
+              fontSize: theme.typography.pxToRem(16),
+              fontWeight: theme.typography.fontWeightMedium
+            })}
+          >
+            {tab.label}
           </Typography>
         </AccordionSummary>
-        <AccordionDetails>
+        <AccordionDetails sx={{ pt: 0 }}>
           <Grid container direction='column'>
-            <Grid item>
+            <Grid>
               <NestedAccordion
-                title={TOP_BRANDS_TITLE}
+                label={TOP_BRANDS_LABEL}
                 // items={brands}
                 items={[{ id: 1, value: 'A' }, { id: 2, value: 'B' }, { id: 3, value: 'C' }]}
                 queryParam='brands'
               />
             </Grid>
-            <Grid item>
+            <Grid>
               <NestedAccordion
-                title={TOP_CATEGORIES_TITLE}
+                label={TOP_CATEGORIES_LABEL}
                 // items={categories}
                 items={[{ id: 1, value: 'A' }, { id: 2, value: 'B' }, { id: 3, value: 'C' }]}
                 queryParam='categories'
@@ -123,7 +143,9 @@ export default function AccordionSection() {
             </Grid>
           </Grid>
         </AccordionDetails>
-      </Accordion>
+      </Accordion >
     );
   });
 }
+
+export default React.memo(AccordionSection);
