@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Autocomplete, Box, Grid, TextField } from '@mui/material';
@@ -14,7 +14,7 @@ function SearchBar({device, size, getSearchSuggestions, handleClose}) {
   const navigate = useNavigate();
   const searchSuggestions = useSelector(state => state.searchSuggestions);
 
-  const getProductLink = useCallback((keyword) => {
+  const getProductLink = (keyword) => {
     if (!keyword || !searchSuggestions?.data?.length) return null;
 
     const matchedItem = searchSuggestions.data.find(item => 
@@ -22,31 +22,31 @@ function SearchBar({device, size, getSearchSuggestions, handleClose}) {
     );
 
     return matchedItem ? matchedItem.link : null;
-  }, [searchSuggestions]);
+  };
 
-  const executeSearch = useCallback((keyword) => {
+  const executeSearch = (keyword) => {
     if (!keyword?.trim()) return;
 
     const productLink = getProductLink(keyword);
     const searchQuery = productLink || keyword;
 
     navigate(`${PRODUCT_BY_CATEGORY_DATA_API}?q=${encodeURIComponent(searchQuery)}&page=0,${MAX_PRODUCTS_PER_PAGE}`);
-  }, [navigate, getProductLink]);
+  };
 
-  const handleSearchSubmit = useCallback((event, reason) => {
+  const handleSearchSubmit = (event, reason) => {
     if (reason === 'selectOption' || reason === 'blur') {
       const keyword = currentSelection?.keyword || currentSelection?.inputValue;
       if (keyword) {
         executeSearch(keyword);
       }
     }
-  }, [currentSelection, executeSearch]);
+  };
 
-  const handleInputChange = useCallback((event, newValue) => {
+  const handleInputChange = (event, newValue) => {
     getSearchSuggestions(newValue);
-  }, [getSearchSuggestions]);
+  };
 
-  const handleSelectionChange = useCallback((event, newValue) => {
+  const handleSelectionChange = (event, newValue) => {
     if (typeof newValue === 'string') {
       setCurrentSelection({ keyword: newValue });
     } else if (newValue?.inputValue) {
@@ -54,7 +54,7 @@ function SearchBar({device, size, getSearchSuggestions, handleClose}) {
     } else {
       setCurrentSelection(newValue);
     }
-  }, []);
+  };
 
   const renderInputField = (params) => {
     if (device === 'mobile') {

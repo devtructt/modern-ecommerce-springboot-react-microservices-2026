@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   isSignedIn: false,
+  isSignedInUsingOAuth: false,
   firstName: null,
   authInstance: null,
 };
@@ -10,19 +11,19 @@ const googleAuthSlice = createSlice({
   name: 'googleAuth',
   initialState,
   reducers: {
-    setGoogleAuth: (state, action) => {
+    setAuth: (state, action) => {
       const { firstName, authInstance } = action.payload;
-      state.isSignedIn = authInstance.isSignedIn;
+      state.isSignedIn = authInstance.isSignedIn.get();
       state.firstName = firstName;
       state.authInstance = authInstance;
     },
-    signInGoogleAuth: (state, action) => {
+    signIn: (state, action) => {
       const { firstName, authInstance } = action.payload;
       state.isSignedIn = true;
       state.firstName = firstName;
       state.authInstance = authInstance;
     },
-    signOutGoogleAuth: (state) => {
+    signOut: (state) => {
       state.isSignedIn = false;
       state.firstName = null;
       state.authInstance = null;
@@ -30,5 +31,5 @@ const googleAuthSlice = createSlice({
   },
 });
 
-export const { setGoogleAuth, signInGoogleAuth, signOutGoogleAuth } = googleAuthSlice.actions;
+export const { setAuth, signIn, signOut } = googleAuthSlice.actions;
 export default googleAuthSlice.reducer;

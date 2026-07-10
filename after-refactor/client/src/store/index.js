@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { reducer as formReducer } from "redux-form";
 
-import tabHoverEventReducer from "../slice/event/tab-hover-event-slice";
+import tabHoverReducer from "../slice/event/tab-hover-slice";
 
 import cartReducer from "../slice/screen/cart";
 import googleAuthReducer from "../slice/screen/google-auth-slice";
@@ -15,7 +15,7 @@ const store = configureStore({
   reducer: {
     form: formReducer,
 
-    tabHoverEvent: tabHoverEventReducer,
+    tabHover: tabHoverReducer,
 
     cart: cartReducer,
     googleAuth: googleAuthReducer,

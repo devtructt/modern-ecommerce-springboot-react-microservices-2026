@@ -1,139 +1,354 @@
-import React, { useState } from 'react';
-import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useHistory, Link } from "react-router-dom";
 
 import {
   AppBar,
-  Avatar,
-  Hidden,
-  IconButton,
   Toolbar,
+  Grid,
+  IconButton,
   Typography,
-} from '@mui/material';
+  Avatar,
+} from "@mui/material";
 
-import BagButton from "./BagButton";
-// import MobileMenu from "./MobileMenu";
+import SearchIcon from "@mui/icons-material/Search";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import MenuIcon from "@mui/icons-material/Menu";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+
+import Cookies from "js-cookie";
+
+import TabList from "./TabList";
 import SearchBar from "./SearchBar";
-import SideBar from './SideBar'
-import TabList from './TabList';
+import SideBar from "./SideBar";
+import MobileMenu from "./MobileMenu";
+import BagButton from "./BagButton";
 
-import { SHOPPERS_PRODUCT_INFO_COOKIE, AUTH_DETAILS_COOKIE } from "../../../constant/cookie";
-import { TABS_DATA_API } from "../../../constant/api-route";
-import { TABS_API_OBJECT_LEN } from "../../../constant/constant"
+import {
+  getDataViaAPI,
+  setAuthDetailsFromCookie,
+  signOut,
+  signOutUsingOAuth,
+  setDefaultSearchSuggestions,
+} from "../../../actions";
+import { ADD_TO_CART, LOAD_TABS_DATA, SET_GOOGLE_AUTH } from "../../../actions/types";
+import {
+  SHOPPERS_PRODUCT_INFO_COOKIE,
+  AUTH_DETAILS_COOKIE,
+} from "../../../constants/cookies";
+import { TABS_DATA_API } from "../../../constants/api_routes";
+import { TABS_API_OBJECT_LEN } from "../../../constants/constants";
 
-// import history from "../../../history";
-
-const NavigationBar = () => {
-  const [hamburgerButtonnState, sethamburgerButtonnState] = React.useState(false);
-  const [mobileSearchState, setMobileSearchState] = React.useState(false);
-  const [mobileMoreAnchorElement, setMobileMoreAnchorElement] = React.useState(null);
-
+function NavBar({ errorHandler }) {
   const dispatch = useDispatch();
-  const signIn = useSelector(state => state.signIn);
-  const googleAuth = useSelector(state => state.googleAuth)
-  const tabsData = useSelector(state => state.tabsData)
+  const navigate = useNavigate();
+  const signIn = useSelector((state) => state.signIn);
+  const googleAuth = useSelector((state) => state.googleAuth);
+  const tabsData = useSelector((state) => state.tabsData);
 
-  let authIcon = null
-  let authLabel = null
-  const mobileMenuId = 'primary-search-account-menu-mobile';
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorElement);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
+  const [mobileMoreAnchorElement, setMobileMoreAnchorElement] = useState(null);
 
-  const handleSidebarOpen = () => {
-    sethamburgerButtonnState(true)
+  const handleMobileMenuOpen = (event) => setMobileMoreAnchorElement(event.currentTarget);
+  const handleMobileMenuClose = () => setMobileMoreAnchorElement(null);
+  const handleMobileSearchOpen = () => setIsMobileSearchOpen(true);
+  const handleMobileSearchClose = () => setIsMobileSearchOpen(false);
+  const handleSidebarOpen = () => setIsHamburgerOpen(true);
+  const handleSidebarClose = () => setIsHamburgerOpen(false);
+
+  const { icon: authIcon, label: authLabel } = getAuthDisplay();
+
+  const getAuthDisplay = () => {
+    if (signIn.isSignedIn || googleAuth.isSignedIn) {
+      const displayName = signIn.firstName || googleAuth.firstName || "Guest";
+      return {
+        icon: (
+          <Avatar
+            sx={{
+              width: 20,
+              height: 20,
+              bgcolor: "orange",
+              filter: "saturate(5)",
+            }}
+          >
+            {displayName.charAt(0).toUpperCase()}
+          </Avatar>
+        ),
+        label: "Sign Out",
+      };
+    }
+    return {
+      icon: <AccountCircleIcon />,
+      label: "Sign In",
+    };
+  };
+
+  const handleSignOut = () => {
+    if (googleAuth.isSignedIn) {
+      dispatch(signOut());
+    } else if (signIn.isSignedIn && signIn.tokenId) {
+      dispatch(signOut());
+    } else {
+      navigate("/signin");
+    }
+    handleMobileMenuClose();
+  };
+
+  const handleGoToShoppingBag = () => {
+    navigate("/shopping-bag");
+    handleMobileMenuClose();
+  };
+
+  const renderIndependentItem = (onClick, icon, label) => (
+    <Grid>
+      <Grid
+        container
+        direction="column"
+        alignItems="center"
+        onClick={onClick}
+        sx={{ cursor: "pointer" }}
+      >
+        <Grid
+          sx={{
+            height: 21,
+            width: 21,
+            pt: 0
+          }}>
+          {icon}
+        </Grid>
+        <Grid
+          sx={{
+            color: "common.black",
+            fontSize: "0.8rem",
+            fontWeight: "bold",
+          }}
+        >
+          {label}
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+
+  if (tabsData.isLoading) return null;
+  if (tabsData.data && Object.keys(tabsData.data).length !== TABS_API_OBJECT_LEN) {
+    return <BadRequest />;
+  }
+  if (tabsData.statusCode) {
+    return <HTTPError statusCode={tabsData.statusCode} />;
   }
 
-  const handleSidebarClose = () => {
-    sethamburgerButtonnState(false)
-  }
+  useEffect(() => {
+    // Load cart from cookie
+    const savedProducts = Cookies.get(SHOPPERS_PRODUCT_INFO_COOKIE);
+    if (savedProducts) {
+      const parsed = JSON.parse(savedProducts);
+      let totalQuantity = 0;
+      Object.values(parsed.productQty || {}).forEach((qty) => {
+        totalQuantity += parseInt(qty, 10);
+      });
 
-  const handleMobileSearchOpen = () => {
-    setMobileSearchState(true)
-  }
+      dispatch({
+        type: ADD_TO_CART,
+        payload: { ...parsed, totalQuantity },
+      });
+    }
 
-  const handleMobileSearchClose = () => {
-    setMobileSearchState(false)
-  }
+    // Load auth from cookie
+    if (signIn.isSignedIn === null) {
+      const savedAuth = Cookies.get(AUTH_DETAILS_COOKIE);
+      if (savedAuth) {
+        dispatch(setAuthDetailsFromCookie(JSON.parse(savedAuth)));
+      }
+    }
+
+    // Load tabs
+    if (!tabsData.data) {
+      dispatch(getDataViaAPI(LOAD_TABS_DATA, TABS_DATA_API, null, false));
+    }
+
+    dispatch(setDefaultSearchSuggestions());
+
+    // Google OAuth
+    if (!googleAuth.oAuth) {
+      window.gapi?.load("client:auth2", () => {
+        window.gapi.client
+          .init({
+            clientId: process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID,
+            scope: "profile",
+          })
+          .then(() => {
+            const authInstance = window.gapi.auth2.getAuthInstance();
+            dispatch({
+              type: SET_GOOGLE_AUTH,
+              payload: {
+                firstName: authInstance.currentUser.get().getBasicProfile()?.getGivenName() || null,
+                oAuth: authInstance,
+              },
+            });
+          });
+      });
+    }
+  }, [dispatch, signIn.isSignedIn, googleAuth.oAuth, tabsData.data]);
 
   return (
-    <SearchBar device='mobile' size='medium' handleClose={handleMobileSearchClose} />
-    // <>
-    //   <SideBar open={hamburgerBtnState} closeHandler={handleSidebarClose} />
-    //   <div style={{ paddingBottom: 80 }}>
-    //     <AppBar color="default" className={classes.appBarRoot}>
-    //       <Toolbar classes={{ root: classes.toolBarRoot }}>
-    //         <Grid container alignItems="center">
-    //           <Hidden lgUp>
-    //             {!mobileSearchState ?
-    //               <Grid item>
-    //                 <IconButton
-    //                   edge="start"
-    //                   className={classes.menuButton}
-    //                   color="inherit"
-    //                   aria-label="open drawer"
-    //                   onClick={handleSidebarOpen}>
-    //                   <MenuIcon fontSize="large" />
-    //                 </IconButton>
-    //               </Grid> : null}
-    //           </Hidden>
+    <>
+      <SideBar open={isHamburgerOpen} closeHandler={handleSidebarClose} />
 
-    //           {!mobileSearchState ? <Grid item>
-    //             <Link to="/">
-    //               <Typography className={classes.title}>
-    //                 Shoppers
-    //               </Typography>
-    //             </Link>
-    //           </Grid> : null}
+      <div style={{ paddingBottom: 80 }}>
+        {/* <AppBar color="default" sx={{ height: 80, boxShadow: "none !important" }}> */}
+        <AppBar color="default" sx={{ boxShadow: "none" }}>
+          <Toolbar sx={{ minHeight: 80 }}>
+            <Grid container alignItems="center">
+              {!isMobileSearchOpen && (
+                <Grid sx={{ display: { lg: "none" } }}>
+                  <IconButton
+                    edge="start"
+                    color="inherit"
+                    onClick={handleSidebarOpen}
+                    sx={{ mr: 2 }}
+                  >
+                    <MenuIcon fontSize="large" />
+                  </IconButton>
+                </Grid>
+              )}
 
-    //           <div className={classes.growHalf} />
+              {!isMobileSearchOpen && (
+                <Grid>
+                  <Link to="/">
+                    <Typography
+                      sx={{
+                        flexGrow: 1,
+                        color: 'text.primary',
+                        fontSize: { xs: "1.8rem", sm: "2.3rem" },
+                        fontWeight: 700,
+                        pb: { xs: 0, sm: 0.5 },
+                      }}
+                    >
+                      Shoppers
+                    </Typography>
+                  </Link>
+                </Grid>
+              )}
 
-    //           <Hidden mdDown>
-    //             <Grid item xs={5}>
-    //               <TabList />
-    //             </Grid>
+              <Grid item sx={{
+                flexGrow: 0.5
+              }}
+              />
 
-    //             <div className={classes.growHalf} />
-    //           </Hidden>
+              <Grid sx={{
+                flexGrow: 5,
+                display: { xs: "none", md: "block" }
+              }}
+              >
+                <TabList />
+              </Grid>
 
-    //           <Hidden xsDown>
-    //             <Grid item container sm={6} md={7} lg={4}>
-    //               <SearchBar size="small" />
-    //             </Grid>
-    //           </Hidden>
+              <Grid
+                sx={{
+                  flexGrow: 0.5,
+                  display: { xs: "none", md: "block" }
+                }}
+              />
 
-    //           <Hidden smUp>
-    //             <div className={classes.growHalf} />
-    //             <div className={classes.growHalf} />
-    //             {renderMobileSearchInputField()}
-    //           </Hidden>
+              <Grid container
+                sx={{
+                  flexGrow: { sm: 6, md: 7, lg: 4 },
+                  display: { xs: "none", sm: "flex" }
+                }}
+              >
+                <SearchBar size="small" />
+              </Grid>
 
-    //           <Hidden xsDown>
-    //             <div className={classes.growHalf} />
+              <Grid
+                sx={{
+                  flexGrow: 0.5,
+                  display: { sm: "none" }
+                }}
+              />
 
-    //             {renderIndependentElem(changeAuthStatusHandler, authIcon, authLabel,
-    //               2)}
+              <Grid
+                sx={{
+                  flexGrow: 0.5,
+                  display: { sm: "none" }
+                }}
+              />
 
-    //             <div className={classes.growQuarter} />
+              {isMobileSearchOpen ? (
+                <Grid>
+                  sx={{
+                    display: { sm: "none" }
+                  }}
+                  <SearchBar size="medium" device="mobile" handleClose={handleMobileSearchClose} />
+                </Grid>
+              ) : (
+                <>
+                  <Grid
+                    sx={{
+                      display: { sm: "none" }
+                    }}
+                  >
+                    <IconButton edge="end" onClick={handleMobileSearchOpen}>
+                      <SearchIcon fontSize="large" />
+                    </IconButton>
+                  </Grid>
 
-    //             {renderIndependentElem(changePageToShoppingBagHandler, <BagButton />,
-    //               "Bag", 0)}
-    //           </Hidden>
+                  <Grid
+                    sx={{
+                      display: { sm: "none" }
+                    }}
+                  >
+                    <IconButton edge="end" onClick={handleMobileMenuOpen}>
+                      <MoreVertIcon fontSize="large" />
+                    </IconButton>
+                  </Grid>
+                </>
+              )}
 
-    //         </Grid>
-    //       </Toolbar>
-    //     </AppBar>
+              <Grid
+                sx={{
+                  flexGrow: 0.5,
+                  display: { xs: "none", sm: "block" }
+                }}
+              />
 
-    //     <MobileMenu mobileMenuId={mobileMenuId}
-    //       authIcon={authIcon}
-    //       authLabel={authLabel}
-    //       authBtnHandler={changeAuthStatusHandler}
-    //       bagBtnHandler={changePageToShoppingBagHandler}
-    //       mobileMoreAnchorEl={mobileMoreAnchorEl}
-    //       isMobileMenuOpen={isMobileMenuOpen}
-    //       handleMobileMenuClose={handleMobileMenuClose}
-    //     />
-    //   </div>
-    // </>
+              <Grid
+                item
+                sx={{ display: { xs: "none", sm: "block" } }}
+              >
+                {renderIndependentItem(handleSignOut, authIcon, authLabel, 2)}
+              </Grid>
+
+              <Grid
+                sx={{
+                  flexGrow: 0.25,
+                  display: { xs: "none", sm: "block" }
+                }}
+              />
+
+              <Grid
+                item
+                sx={{ display: { xs: "none", sm: "block" } }}
+              >
+                {renderIndependentItem(handleGoToShoppingBag, <BagButton />, "Bag")}
+              </Grid>
+            </Grid>
+          </Toolbar>
+        </AppBar>
+
+        <MobileMenu
+          mobileMenuId={mobileMenuId}
+          authIcon={authIcon}
+          authLabel={authLabel}
+          authBtnHandler={handleSignOut}
+          bagBtnHandler={handleGoToShoppingBag}
+          mobileMoreAnchorEl={mobileMoreAnchorElement}
+          isMobileMenuOpen={isMobileMenuOpen}
+          handleMobileMenuClose={handleMobileMenuClose}
+        />
+      </div>
+    </>
   );
-}
+};
 
-export default NavigationBar;
+export default React.memo(NavBar);
