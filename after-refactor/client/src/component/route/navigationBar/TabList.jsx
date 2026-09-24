@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import { Tabs, Tab } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { setTabHoverState } from '../../../slice/event/tab-hover-event-slice';
+import { setTabHoverState } from '../../../slice/event/tabHoverSlice';
 import { TAB_CONFIG } from '../../../constant/constant';
 
 const TabList = () => {

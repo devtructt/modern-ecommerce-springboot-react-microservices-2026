@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import log from 'loglevel'
 
-import ErrorBoundary from './ErrorBoundary'
+import ErrorBoundary from './ErrorBooundary'
 import App from './App';
 import theme from './theme';
 import store from './store';

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useHistory, Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import Cookies from "js-cookie";
 
 import {
   AppBar,
@@ -10,13 +11,10 @@ import {
   Typography,
   Avatar,
 } from "@mui/material";
-
 import SearchIcon from "@mui/icons-material/Search";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MenuIcon from "@mui/icons-material/Menu";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-
-import Cookies from "js-cookie";
 
 import TabList from "./TabList";
 import SearchBar from "./SearchBar";
@@ -24,11 +22,14 @@ import SideBar from "./SideBar";
 import MobileMenu from "./MobileMenu";
 import BagButton from "./BagButton";
 
+import { signOut } from '../../../slice/signInSlice';
+import { signOutUsingOAuth } from '../../../slice/googleAuthSlice';
+
+import { useGetTabsDataQuery } from '../../../api/tabsApi';
+
 import {
   getDataViaAPI,
   setAuthDetailsFromCookie,
-  signOut,
-  signOutUsingOAuth,
   setDefaultSearchSuggestions,
 } from "../../../actions";
 import { ADD_TO_CART, LOAD_TABS_DATA, SET_GOOGLE_AUTH } from "../../../actions/types";
@@ -36,28 +37,28 @@ import {
   SHOPPERS_PRODUCT_INFO_COOKIE,
   AUTH_DETAILS_COOKIE,
 } from "../../../constants/cookies";
-import { TABS_DATA_API } from "../../../constants/api_routes";
-import { TABS_API_OBJECT_LEN } from "../../../constants/constants";
+import { TABS_DATA_API } from "../../../constant/apiRoute";
+import { TABS_API_OBJECT_LEN } from "../../../constant/common";
 
 function NavBar({ errorHandler }) {
+  const signIn = useSelector(state => state.signIn);
+  const googleAuth = useSelector(state => state.googleAuth);
+  const tabsData = useGetTabsDataQuery();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const signIn = useSelector((state) => state.signIn);
-  const googleAuth = useSelector((state) => state.googleAuth);
-  const tabsData = useSelector((state) => state.tabsData);
 
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [mobileMoreAnchorElement, setMobileMoreAnchorElement] = useState(null);
 
-  const handleMobileMenuOpen = (event) => setMobileMoreAnchorElement(event.currentTarget);
-  const handleMobileMenuClose = () => setMobileMoreAnchorElement(null);
   const handleMobileSearchOpen = () => setIsMobileSearchOpen(true);
   const handleMobileSearchClose = () => setIsMobileSearchOpen(false);
   const handleSidebarOpen = () => setIsHamburgerOpen(true);
   const handleSidebarClose = () => setIsHamburgerOpen(false);
+  const handleMobileMenuOpen = (event) => setMobileMoreAnchorElement(event.currentTarget);
+  const handleMobileMenuClose = () => setMobileMoreAnchorElement(null);
 
-  const { icon: authIcon, label: authLabel } = getAuthDisplay();
+  const { icon, label } = getAuthDisplay();
 
   const getAuthDisplay = () => {
     if (signIn.isSignedIn || googleAuth.isSignedIn) {
@@ -86,7 +87,7 @@ function NavBar({ errorHandler }) {
 
   const handleSignOut = () => {
     if (googleAuth.isSignedIn) {
-      dispatch(signOut());
+      dispatch(signOutUsingOAuth(googleAuth.oAuth));
     } else if (signIn.isSignedIn && signIn.tokenId) {
       dispatch(signOut());
     } else {
@@ -178,12 +179,12 @@ function NavBar({ errorHandler }) {
             scope: "profile",
           })
           .then(() => {
-            const authInstance = window.gapi.auth2.getAuthInstance();
+            const oAuth = window.gapi.auth2.getoAuth();
             dispatch({
               type: SET_GOOGLE_AUTH,
               payload: {
-                firstName: authInstance.currentUser.get().getBasicProfile()?.getGivenName() || null,
-                oAuth: authInstance,
+                firstName: oAuth.currentUser.get().getBasicProfile()?.getGivenName() || null,
+                oAuth: oAuth,
               },
             });
           });
@@ -337,14 +338,13 @@ function NavBar({ errorHandler }) {
         </AppBar>
 
         <MobileMenu
-          mobileMenuId={mobileMenuId}
+          isMobileMenuOpen={isMobileMenuOpen}
+          mobileMoreAnchorEl={mobileMoreAnchorElement}
+          onClose={handleMobileMenuClose}
+          onAuthButtonClick={handleSignOut}
+          onBagButtonClick={handleGoToShoppingBag}
           authIcon={authIcon}
           authLabel={authLabel}
-          authBtnHandler={handleSignOut}
-          bagBtnHandler={handleGoToShoppingBag}
-          mobileMoreAnchorEl={mobileMoreAnchorElement}
-          isMobileMenuOpen={isMobileMenuOpen}
-          handleMobileMenuClose={handleMobileMenuClose}
         />
       </div>
     </>
