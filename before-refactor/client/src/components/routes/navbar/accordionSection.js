@@ -100,7 +100,7 @@ export default function AccordionSection() {
                     <Typography className={classes.subHeading}>{title}</Typography>
                 </AccordionSummary>
                 <AccordionDetails classes={{root: classes.accordionDetailRoot}}>
-                    <Grid container direction="column" spacing={3} style={{padding: "1rem 0 1rem 2rem"}}>
+                    <Grid container direction="column" spacing={3} style={{ padding: "1rem 0 1rem 2rem" }}>
                         {renderContent(content, key, queryParam)}
                     </Grid>
                 </AccordionDetails>

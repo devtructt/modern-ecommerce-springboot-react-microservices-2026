@@ -1,33 +1,40 @@
-import React from 'react'
-import { Drawer } from '@mui/material';
+import React, { useRef } from 'react';
+import { Box, Drawer } from '@mui/material';
 
 import AccordionSection from './AccordionSection';
-import useClickAway from '../../../hook/useClickAway';
+import { useClickAway } from '../../../hook/useClickAway';
 
-const SideBar = props => {
-  useClickAway(props.closeHandler);
+function SideBar({ open, closeHandler }) {
+  const drawerRef = useRef(null);
+
+  useClickAway(drawerRef, closeHandler);
 
   return (
-    <Drawer
-      variant='temporary'
-      open={props.open}
-      slotProps={{
-        paper: {
-          sx: {
-            width: { xs: 280, sm: 400 },
-            WebkitOverflowScrolling: 'touch',  // Smooth scroll trên iOS/mobile
-            msOverflowStyle: 'none',  // IE/Edge
-            scrollbarWidth: 'none',   // Firefox
-            '&::-webkit-scrollbar': {  // Chrome/Safari
-              display: 'none',
+    <Box sx={{ display: 'flex' }}>
+      <Drawer
+        ref={drawerRef}
+        variant="temporary"
+        open={open}
+        sx={{
+          width: { xs: 280, sm: 400 },
+          flexShrink: 0,
+        }}
+        slotProps={{
+          paper: {
+            sx: {
+              width: { xs: 280, sm: 400 },
+              WebkitOverflowScrolling: 'touch',
+              msOverflowStyle: 'none',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': { display: 'none' }
             },
-          }
-        }
-      }}
-    >
-      <AccordionSection />
-    </Drawer>
-  )
+          },
+        }}
+      >
+        <AccordionSection />
+      </Drawer>
+    </Box>
+  );
 }
 
-export default SideBar;
+export default React.memo(SideBar);

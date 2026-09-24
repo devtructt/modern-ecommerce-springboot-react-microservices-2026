@@ -2,11 +2,11 @@
 export const MAX_PRODUCTS_PER_PAGE = 16;
 
 export const TAB_CONFIG = [
-    { id: "men", title: "MEN", color: "#ee5f73" },
-    { id: "women", title: "WOMEN", color: "#fb56c1" },
-    { id: "boys", title: "KIDS", color: "#f26a10" },
-    { id: "essentials", title: "ESSENTIALS", color: "#0db7af" },
-    { id: "homeAndLiving", title: "HOME & LIVING", color: "#f2c210" },
+    { id: "men", label: "MEN", color: "#ee5f73" },
+    { id: "women", label: "WOMEN", color: "#fb56c1" },
+    { id: "boys", label: "KIDS", color: "#f26a10" },
+    { id: "essentials", label: "ESSENTIALS", color: "#0db7af" },
+    { id: "homeAndLiving", label: "HOME & LIVING", color: "#f2c210" },
 ];
 
 export const INITIAL_PAGINATION_STATE = {
